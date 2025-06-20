@@ -23,7 +23,7 @@
                 @forelse ($products as $product)
                     <tr>
                         <td>{{ $product->name }}</td>
-                        <td>{{ number_format($product->price, 0, ',', ' ') }}</td>
+                        <td>{{ $product->sale_price }}</td>
                         <td>{{ $product->stock_quantity }}</td>
                         <td>
                             <a href="{{ route('products.edit', $product) }}" class="btn btn-sm btn-warning">Modifier</a>

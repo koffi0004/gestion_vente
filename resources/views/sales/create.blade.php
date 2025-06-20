@@ -18,35 +18,43 @@
         </div>
 
         <!-- Table des produits -->
-        <table class="table table-bordered" id="products_table">
-            <thead>
-                <tr>
-                    <th>Produit</th>
-                    <th>Quantité</th>
-                    <th>Prix unitaire</th>
-                    <th>Sous-total</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody id="product_rows">
-                <tr>
-                    <td>
-                        <select name="products[0][product_id]" class="form-control product-select" required onchange="updatePrice(0)">
-                            <option value="">-- Choisir --</option>
-                            @foreach($products as $product)
-                                <option value="{{ $product->id }}" data-price="{{ $product->sale_price }}">
-                                    {{ $product->name }} ({{ $product->sale_price }} FCFA)
-                                </option>
-                            @endforeach
-                        </select>
-                    </td>
-                    <td><input type="number" name="products[0][quantity]" class="form-control quantity" min="1" value="1" onchange="updateSubtotal(0)"></td>
-                    <td><input type="number" name="products[0][price]" class="form-control price" readonly></td>
-                    <td><input type="number" name="products[0][subtotal]" class="form-control subtotal" readonly></td>
-                    <td><button type="button" class="btn btn-danger" onclick="removeRow(this)">X</button></td>
-                </tr>
-            </tbody>
-        </table>
+       <table class="table table-bordered" id="products_table">
+    <thead>
+        <tr>
+            <th>Produit</th>
+            <th>Quantité</th>
+            <th>Prix unitaire</th>
+            <th>Sous-total</th>
+            <th></th>
+        </tr>
+    </thead>
+   <tbody id="product_rows">
+    <tr>
+        <td>
+            <select name="products[0][product_id]" class="form-control product-select" required onchange="updateRow(0)">
+                <option value="">-- Choisir --</option>
+                @foreach($products as $product)
+                    <option value="{{ $product->id }}" data-price="{{ $product->sale_price }}">
+                        {{ $product->name }} ({{ number_format($product->sale_price, 0) }} FCFA)
+                    </option>
+                @endforeach
+            </select>
+        </td>
+        <td>
+            <input type="number" name="products[0][quantity]" class="form-control quantity" value="1" min="1" onchange="updateRow(0)">
+        </td>
+        <td>
+            <input type="text" name="products[0][unit_price]" class="form-control unit_price"eadonly>
+        </td>
+        <td>
+            <input type="text" name="products[0][total_price]" class="form-control total_price" readonly>
+        </td>
+        <td>
+            <button type="button" class="btn btn-danger" onclick="removeRow(this)">X</button>
+        </td>
+    </tr>
+</tbody>
+</table>
 
         <button type="button" class="btn btn-secondary" onclick="addRow()">Ajouter un produit</button>
 
@@ -73,59 +81,54 @@
 <script>
     let rowIndex = 1;
 
-    function addRow() {
-        const newRow = document.querySelector('#product_rows tr').cloneNode(true);
-        const html = newRow.innerHTML.replaceAll(/\[0\]/g, [${rowIndex}]);
-        newRow.innerHTML = html;
-        document.getElementById('product_rows').appendChild(newRow);
-        resetRow(rowIndex);
-        rowIndex++;
-        updateTotal();
-    }
+    function updateRow(index) {
+        const row = document.querySelectorAll('#product_rows tr')[index];
+        const select = row.querySelector('.product-select');
+        const price = parseFloat(select.options[select.selectedIndex]?.dataset.price || 0);
+        const quantity = parseInt(row.querySelector('.quantity').value) || 0;
 
-    function removeRow(btn) {
-        const rows = document.querySelectorAll('#product_rows tr');
-        if (rows.length > 1) {
-            btn.closest('tr').remove();
-            updateTotal();
-        }
-    }
+        const unitInput = row.querySelector('.unit_price');
+        const totalInput = row.querySelector('.total_price');
 
-    function resetRow(index) {
-        const row = document.querySelector(#product_rows tr:nth-child(${index + 1}));
-        if (!row) return;
-        row.querySelector('.quantity').value = 1;
-        row.querySelector('.price').value = '';
-        row.querySelector('.subtotal').value = '';
-        row.querySelector('.product-select').selectedIndex = 0;
-    }
+        unitInput.value = price.toFixed(2);
+        totalInput.value = (price * quantity).toFixed(2);
 
-    function updatePrice(index) {
-        const select = document.getElementsByName(products[${index}][product_id])[0];
-        const price = select.options[select.selectedIndex].getAttribute('data-price');
-        document.getElementsByName(products[${index}][price])[0].value = price;
-        updateSubtotal(index);
-    }
-
-    function updateSubtotal(index) {
-        const qty = parseFloat(document.getElementsByName(products[${index}][quantity])[0].value);
-        const price = parseFloat(document.getElementsByName(products[${index}][price])[0].value);
-        const subtotal = qty * price;
-        if (!isNaN(subtotal)) {
-            document.getElementsByName(products[${index}][subtotal])[0].value = subtotal.toFixed(2);
-        }
         updateTotal();
     }
 
     function updateTotal() {
         let total = 0;
-        document.querySelectorAll('.subtotal').forEach(input => {
+        document.querySelectorAll('.total_price').forEach(input => {
             total += parseFloat(input.value) || 0;
         });
+
         document.getElementById('grand_total').innerText = total.toFixed(2);
         document.getElementById('total_amount').value = total.toFixed(2);
     }
 
-    document.addEventListener('change', updateTotal);
+    function addRow() {
+        const rows = document.querySelectorAll('#product_rows tr');
+        const lastRow = rows[rows.length - 1];
+        const newRow = lastRow.cloneNode(true);
+
+        // Mettre à jour les noms des champs
+        newRow.querySelectorAll('select, input').forEach(input => {
+            input.name = input.name.replace(/\d+/, rowIndex);
+            if (input.classList.contains('quantity')) input.value = 1;
+            if (input.classList.contains('unit_price') || input.classList.contains('total_price')) input.value = '';
+            if (input.tagName === 'SELECT') input.selectedIndex = 0;
+        });
+
+        document.getElementById('product_rows').appendChild(newRow);
+        rowIndex++;
+    }
+
+    function removeRow(button) {
+        const rows = document.querySelectorAll('#product_rows tr');
+        if (rows.length > 1) {
+            button.closest('tr').remove();
+            updateTotal();
+        }
+    }
 </script>
 @endsection
