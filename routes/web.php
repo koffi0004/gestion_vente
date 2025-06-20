@@ -11,7 +11,9 @@ Route::get('/', function () {
     return view('dashboard'); // ← maintenant / affiche ton dashboard
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::get('/sales/{sale}/receipt', [SaleController::class, 'receipt'])->name('sales.receipt');
 // ✅ Ressources protégées par auth
+
 Route::middleware('auth')->group(function () {
     Route::resource('products', ProductController::class);
     Route::resource('clients', ClientController::class);

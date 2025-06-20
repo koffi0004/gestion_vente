@@ -24,38 +24,46 @@ class SaleController extends Controller
         return view('sales.create', compact('clients', 'products'));
     }
 
-    public function store(Request $request)
-    {
-        DB::transaction(function () use ($request) {
-            $sale = Sale::create([
-                'user_id' => auth()->id(),
-                'client_id' => $request->client_id,
-                'total_amount' => $request->total_amount,
-                'payment_method' => $request->payment_method,
-                'note' => $request->note,
-            ]);
+   public function store(Request $request)
+{
+    $sale = null;
 
-            foreach ($request->products as $product_id => $quantity) {
-                if ($quantity > 0) {
-                    $product = Product::find($product_id);
-                    $subtotal = $product->price * $quantity;
+    DB::transaction(function () use ($request, &$sale) {
+        $sale = Sale::create([
+            'user_id' => auth()->id(),
+            'client_id' => $request->client_id,
+            'total_amount' => $request->total_amount,
+            'payment_method' => $request->payment_method,
+            'note' => $request->note,
+        ]);
 
-                    SaleItem::create([
-                        'sale_id' => $sale->id,
-                        'product_id' => $product_id,
-                        'quantity' => $quantity,
-                        'unit_price' => $product->price,
-                        'subtotal' => $subtotal,
-                    ]);
+        foreach ($request->products as $index => $productData) {
+            if ($productData['quantity'] > 0) {
+                $product = Product::find($productData['product_id']);
+                $subtotal = $productData['quantity'] * $productData['unit_price'];
 
-                    $product->decrement('stock_quantity', $quantity);
-                }
+                SaleItem::create([
+                    'sale_id' => $sale->id,
+                    'product_id' => $productData['product_id'],
+                    'quantity' => $productData['quantity'],
+                    'unit_price' => $productData['unit_price'],
+                    'total_price' => $subtotal,
+                ]);
+
+                $product->decrement('stock_quantity', $productData['quantity']);
             }
-        });
+        }
+    });
 
-        return redirect()->route('sales.index')->with('success', 'Vente enregistrée.');
-    }
+    // ✅ Rediriger vers le reçu après création
+    return redirect()->route('sales.receipt', $sale->id);
+}
 
+public function receipt(Sale $sale)
+{
+    $sale->load('client', 'items.product');
+    return view('sales.receipt', compact('sale'));
+}
     public function show(Sale $sale)
     {
         $sale->load('client', 'items.product');
