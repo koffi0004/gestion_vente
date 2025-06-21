@@ -1,7 +1,22 @@
 @extends('layouts.app')
 
 @section('content')
-
+@if(!$sale->canceled_at)
+    <form action="{{ route('sales.cancel', $sale) }}" method="POST" onsubmit="return confirm('Annuler cette vente ?');">
+        @csrf
+        @method('PATCH')
+        <div class="mb-3">
+            <label for="reason" class="form-label">Justification :</label>
+            <textarea name="reason" class="form-control" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-danger">Annuler la vente</button>
+    </form>
+@else
+    <div class="alert alert-warning mt-3">
+        <strong>Vente annulée le {{ $sale->canceled_at->format('d/m/Y à H:i') }}</strong><br>
+        Raison : {{ $sale->cancellation_reason }}
+    </div>
+@endif
 <div class="container">
     <h1>Détails de la vente #{{ $sale->id }}</h1>
 
@@ -37,20 +52,4 @@
 </a>
     <a href="{{ route('sales.index') }}" class="btn btn-secondary">Retour</a>
 </div>
-@if(!$sale->canceled_at)
-    <form action="{{ route('sales.cancel', $sale) }}" method="POST" onsubmit="return confirm('Annuler cette vente ?');">
-        @csrf
-        @method('PATCH')
-        <div class="mb-3">
-            <label for="reason" class="form-label">Justification :</label>
-            <textarea name="reason" class="form-control" required></textarea>
-        </div>
-        <button type="submit" class="btn btn-danger">Annuler la vente</button>
-    </form>
-@else
-    <div class="alert alert-warning mt-3">
-        <strong>Vente annulée le {{ $sale->canceled_at->format('d/m/Y à H:i') }}</strong><br>
-        Raison : {{ $sale->cancellation_reason }}
-    </div>
-@endif
 @endsection

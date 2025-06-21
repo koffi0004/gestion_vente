@@ -15,15 +15,20 @@
             </tr>
         </thead>
         <tbody>
-        @foreach($sales as $sale)
-            <tr>
-                <td>{{ $sale->created_at->format('d/m/Y') }}</td>
-                <td>{{ $sale->client->name ?? 'Client inconnu' }}</td>
-                <td>{{ $sale->total_amount }} FCFA</td>
-                <td>{{ $sale->payment_method }}</td>
-                <td><a href="{{ route('sales.show', $sale) }}" class="btn btn-sm btn-info">Voir</a></td>
-            </tr>
-        @endforeach
+       @foreach($sales as $sale)
+    <tr @if($sale->canceled_at) class="table-danger" @endif>
+        <td>{{ $sale->created_at->format('d/m/Y') }}</td>
+        <td>{{ $sale->client->name ?? 'Client inconnu' }}</td>
+        <td>{{ $sale->total_amount }} FCFA</td>
+        <td>{{ $sale->payment_method }}</td>
+        <td>
+            @if($sale->canceled_at)
+                <span class="badge bg-danger">Annulée</span>
+            @endif
+            <a href="{{ route('sales.show', $sale) }}" class="btn btn-sm btn-info">Voir</a>
+        </td>
+    </tr>
+@endforeach
         </tbody>
     </table>
 @endsection
