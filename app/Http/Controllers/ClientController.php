@@ -21,7 +21,7 @@ class ClientController extends Controller
     public function store(Request $request)
     {
         Client::create($request->all());
-        return redirect()->route('clients.index')->with('success', 'Client ajouté.');
+        return redirect()->route('clients.index')->with('success', 'Client ajouté avec succès.');
     }
 
     public function edit(Client $client)
@@ -32,12 +32,12 @@ class ClientController extends Controller
     public function update(Request $request, Client $client)
     {
         $client->update($request->all());
-        return redirect()->route('clients.index')->with('success', 'Client mis à jour.');
+        return redirect()->route('clients.index')->with('success', 'Client mis à jour avec succès.');
     }
 
     public function destroy(Client $client)
     {
         $client->delete();
-        return redirect()->route('clients.index')->with('success', 'Client supprimé.');
+        return redirect()->route('clients.index')->with('success', 'Client supprimé avec succès.');
     }
 }

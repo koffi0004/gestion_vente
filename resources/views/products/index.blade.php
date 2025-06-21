@@ -1,43 +1,57 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
-        <h1 class="mb-4">Liste des Produits</h1>
+<div class="container">
+    <h1>Liste des produits</h1>
 
-        @if(session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
+    <a href="{{ route('products.create') }}" class="btn btn-primary mb-3">Ajouter un produit</a>
 
-        <a href="{{ route('products.create') }}" class="btn btn-primary mb-3">Ajouter un produit</a>
-
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Prix (F CFA)</th>
-                    <th>Quantité en stock</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($products as $product)
-                    <tr>
-                        <td>{{ $product->name }}</td>
-                        <td>{{ $product->sale_price }}</td>
-                        <td>{{ $product->stock_quantity }}</td>
-                        <td>
-                            <a href="{{ route('products.edit', $product) }}" class="btn btn-sm btn-warning">Modifier</a>
-                            <form action="{{ route('products.destroy', $product) }}" method="POST" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-sm btn-danger" onclick="return confirm('Supprimer ce produit ?')">Supprimer</button>
-                            </form>
-                        </td>
-                    </tr>
-                @empty
-                    <tr><td colspan="4">Aucun produit enregistré</td></tr>
-                @endforelse
-            </tbody>
-        </table>
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+    @if($lowStockProducts->count())
+    <div class="alert alert-warning">
+        <strong>Attention :</strong> Certains produits ont un stock faible !
+        <ul>
+            @foreach($lowStockProducts as $product)
+                <li>{{ $product->name }} : {{ $product->stock_quantity }} en stock</li>
+            @endforeach
+        </ul>
     </div>
+@endif
+<form method="GET" action="{{ route('products.index') }}" class="mb-3">
+    <input type="text" name="search" placeholder="Rechercher un produit..." value="{{ request('search') }}" class="form-control" />
+</form>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Description</th>
+                <th>Prix (FCFA)</th>
+                <th>Stock</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach($products as $product)
+            <tr>
+                <td>{{ $product->name }}</td>
+                <td>{{ $product->description ?? '-' }}</td>
+                <td>{{ number_format($product->sale_price, 0) }}</td>
+                <td>{{ $product->stock_quantity }}</td>
+                <td>
+                    <a href="{{ route('products.edit', $product) }}" class="btn btn-sm btn-warning">Modifier</a>
+
+                    <form action="{{ route('products.destroy', $product) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Confirmer la suppression ?')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+        @endforeach
+        </tbody>
+    </table>
+</div>
 @endsection

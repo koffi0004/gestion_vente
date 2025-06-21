@@ -6,6 +6,7 @@
 
     <p><strong>Date :</strong> {{ $sale->created_at->format('d/m/Y H:i') }}</p>
     <p><strong>Client :</strong> {{ $sale->client->name ?? 'Non défini' }}</p>
+    <p><strong>Téléphone :</strong> {{ $sale->client->phone ?? 'Non défini' }}</p>
     <p><strong>Méthode de paiement :</strong> {{ $sale->payment_method }}</p>
     <p><strong>Total :</strong> {{ number_format($sale->total_amount, 2) }} FCFA</p>
 
@@ -30,7 +31,9 @@
         @endforeach
         </tbody>
     </table>
-
+<a href="{{ route('sales.receipt', $sale->id) }}" class="btn btn-primary" target="_blank">
+    Imprimer le reçu
+</a>
     <a href="{{ route('sales.index') }}" class="btn btn-secondary">Retour</a>
 </div>
 @endsection
