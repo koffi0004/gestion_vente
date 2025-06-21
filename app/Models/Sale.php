@@ -12,6 +12,12 @@ class Sale extends Model
         'total_amount',
         'payment_method',
         'note',
+        'canceled_at',             // ← si tu veux autoriser la mise à jour en masse
+        'cancellation_reason',     // ← optionnel ici
+    ];
+
+    protected $casts = [
+        'canceled_at' => 'datetime', // ← pour que Laravel gère ça comme un objet Carbon
     ];
 
     public function items()

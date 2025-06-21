@@ -11,6 +11,34 @@ use Illuminate\Support\Facades\DB;
 
 class SaleController extends Controller
 {
+
+public function cancel(Request $request, Sale $sale)
+{
+    if ($sale->canceled_at) {
+        return redirect()->back()->with('error', 'Vente déjà annulée.');
+    }
+
+    $request->validate([
+        'reason' => 'required|string|max:1000',
+    ]);
+
+    DB::transaction(function () use ($sale, $request) {
+        // Restaurer les quantités de stock
+        foreach ($sale->items as $item) {
+            $item->product->increment('stock_quantity', $item->quantity);
+        }
+
+        // Annuler la vente
+        $sale->update([
+            'canceled_at' => now(),
+            'cancellation_reason' => $request->reason,
+        ]);
+    });
+
+    return redirect()->route('sales.show', $sale)->with('success', 'Vente annulée avec succès.');
+}
+
+
     public function index()
     {
         $sales = Sale::with('client')->get();
@@ -36,6 +64,8 @@ class SaleController extends Controller
             'payment_method' => $request->payment_method,
             'note' => $request->note,
         ]);
+
+        
 
         foreach ($request->products as $index => $productData) {
             if ($productData['quantity'] > 0) {

@@ -39,7 +39,9 @@
     <div class="dropdown">
         
         <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Mon Profil</a></li>
+            <li><a href="{{ route('profile.edit') }}" title="Profil utilisateur" class="btn">
+    <i class="fas fa-user-circle fa-lg"></i>
+</a></li>
             <li>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
