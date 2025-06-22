@@ -52,10 +52,31 @@ public function cancel(Request $request, Sale $sale)
         return view('sales.create', compact('clients', 'products'));
     }
 
-   public function store(Request $request)
+ public function store(Request $request)
 {
-    $sale = null;
+    // 💡 Étape 1 : validation basique
+    $request->validate([
+        'client_id' => 'required|exists:clients,id',
+        'payment_method' => 'required|string',
+        'products' => 'required|array|min:1',
+        'products.*.product_id' => 'required|exists:products,id',
+        'products.*.quantity' => 'required|integer|min:1',
+        'products.*.unit_price' => 'required|numeric|min:0',
+    ]);
 
+    // 💡 Étape 2 : vérification du stock
+    foreach ($request->products as $item) {
+        $product = Product::find($item['product_id']);
+
+        if ($item['quantity'] > $product->stock_quantity) {
+            return back()->withErrors([
+                'stock' => "Stock insuffisant pour « {$product->name} » (disponible : {$product->stock_quantity}, demandé : {$item['quantity']})."
+            ])->withInput();
+        }
+    }
+
+    // 💡 Étape 3 : transaction
+    $sale = null;
     DB::transaction(function () use ($request, &$sale) {
         $sale = Sale::create([
             'user_id' => auth()->id(),
@@ -65,9 +86,7 @@ public function cancel(Request $request, Sale $sale)
             'note' => $request->note,
         ]);
 
-        
-
-        foreach ($request->products as $index => $productData) {
+        foreach ($request->products as $productData) {
             if ($productData['quantity'] > 0) {
                 $product = Product::find($productData['product_id']);
                 $subtotal = $productData['quantity'] * $productData['unit_price'];
@@ -85,9 +104,9 @@ public function cancel(Request $request, Sale $sale)
         }
     });
 
-    // ✅ Rediriger vers le reçu après création
     return redirect()->route('sales.receipt', $sale->id);
 }
+
 
 public function receipt(Sale $sale)
 {

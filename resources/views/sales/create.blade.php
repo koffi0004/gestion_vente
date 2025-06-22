@@ -3,6 +3,11 @@
 @section('content')
 <div class="container">
     <h1>Nouvelle vente</h1>
+    @if ($errors->has('stock'))
+    <div class="alert alert-danger">
+        {{ $errors->first('stock') }}
+    </div>
+@endif
 
     <form action="{{ route('sales.store') }}" method="POST">
         @csrf
@@ -38,7 +43,7 @@
     <option value="{{ $product->id }}" 
         data-price="{{ $product->sale_price }}" 
         data-stock="{{ $product->stock_quantity }}">
-        {{ $product->name }} ({{ number_format($product->sale_price, 0) }} FCFA | Stock: {{ $product->stock_quantity }})
+        {{ $product->name }} ({{ number_format($product->sale_price, 0) }} FCFA )
     </option>
 @endforeach
             </select>
