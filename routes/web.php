@@ -8,12 +8,13 @@ use App\Http\Controllers\ProfileController;
 
 // ✅ Page d'accueil (on remplace welcome)
 Route::get('/', function () {
-    return view('dashboard'); // ← maintenant / affiche ton dashboard
+    return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+// ✅ Reçu
 Route::get('/sales/{sale}/receipt', [SaleController::class, 'receipt'])->name('sales.receipt');
-// ✅ Ressources protégées par auth
 
+// ✅ Ressources protégées par auth
 Route::middleware('auth')->group(function () {
     Route::resource('products', ProductController::class);
     Route::resource('clients', ClientController::class);
@@ -21,11 +22,17 @@ Route::middleware('auth')->group(function () {
 
     Route::patch('/sales/{sale}/cancel', [SaleController::class, 'cancel'])->name('sales.cancel');
 
-    // Optionnel : Profil utilisateur
+    // ✅ Exportations PDF
+Route::get('/export/sales/pdf', [App\Http\Controllers\SaleController::class, 'exportPdf'])
+    ->name('sales.export.pdf')
+    ->middleware('auth');
+    
+
+    // ✅ Profil utilisateur
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// ✅ Authentification Breeze / Jetstream
+// ✅ Auth Breeze
 require __DIR__.'/auth.php';

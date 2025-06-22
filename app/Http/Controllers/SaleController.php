@@ -8,6 +8,7 @@ use App\Models\Client;
 use App\Models\SaleItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+ use Barryvdh\DomPDF\Facade\Pdf;
 
 class SaleController extends Controller
 {
@@ -118,4 +119,14 @@ public function receipt(Sale $sale)
         $sale->load('client', 'items.product');
         return view('sales.show', compact('sale'));
     }
+
+   
+
+public function exportPdf()
+{
+    $sales = Sale::with('client')->latest()->get();
+    $pdf = Pdf::loadView('exports.sales_pdf', compact('sales'));
+    return $pdf->download('liste_ventes.pdf');
+}
+
 }
