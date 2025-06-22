@@ -3,7 +3,7 @@
 @section('content')
     <h1>Historique des ventes</h1>
     <a href="{{ route('sales.create') }}" class="btn btn-success mb-3">Nouvelle vente</a>
-    <a href="{{ route('sales.export.pdf') }}" class="btn btn-danger mb-3">
+    <a href="{{ route('sales.export.pdf') }}" class="btn btn-outline-danger mb-3">
     📄 Exporter en PDF
 </a>
 

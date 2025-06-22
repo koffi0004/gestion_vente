@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+ use Barryvdh\DomPDF\Facade\Pdf;
 
 class ProductController extends Controller
 {
@@ -64,4 +65,11 @@ class ProductController extends Controller
         $product->delete();
         return redirect()->route('products.index')->with('success', 'Produit supprimé.');
     }
+
+    public function exportStockPdf()
+{
+    $products = Product::all();
+    $pdf = Pdf::loadView('exports.stock_pdf', compact('products'));
+    return $pdf->download('etat_stock.pdf');
+}
 }

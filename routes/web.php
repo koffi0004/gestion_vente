@@ -26,6 +26,9 @@ Route::middleware('auth')->group(function () {
 Route::get('/export/sales/pdf', [App\Http\Controllers\SaleController::class, 'exportPdf'])
     ->name('sales.export.pdf')
     ->middleware('auth');
+Route::get('/export/stock/pdf', [App\Http\Controllers\ProductController::class, 'exportStockPdf'])
+    ->name('products.export.stock.pdf')
+    ->middleware('auth');
     
 
     // ✅ Profil utilisateur

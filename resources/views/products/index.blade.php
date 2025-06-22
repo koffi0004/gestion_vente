@@ -5,6 +5,9 @@
     <h1>Liste des produits</h1>
 
     <a href="{{ route('products.create') }}" class="btn btn-primary mb-3">Ajouter un produit</a>
+    <a href="{{ route('products.export.stock.pdf') }}" class="btn btn-outline-danger mb-3">
+    🧾 État du stock (PDF)
+</a>
 
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
