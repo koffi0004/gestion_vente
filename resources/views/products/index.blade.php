@@ -31,7 +31,9 @@
             <tr>
                 <th>Nom</th>
                 <th>Description</th>
-                <th>Prix (FCFA)</th>
+                <th>Unité</th>
+                <th>Prix d'achat (FCFA)</th>
+                <th>Prix de vente (FCFA)</th>
                 <th>Stock</th>
                 <th>Actions</th>
             </tr>
@@ -41,6 +43,8 @@
             <tr>
                 <td>{{ $product->name }}</td>
                 <td>{{ $product->description ?? '-' }}</td>
+                <td>{{ $product->unit }}</td>
+                <td>{{ number_format($product->purchase_price, 0) }}</td>
                 <td>{{ number_format($product->sale_price, 0) }}</td>
                 <td>{{ $product->stock_quantity }}</td>
                 <td>

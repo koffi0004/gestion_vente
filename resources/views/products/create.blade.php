@@ -13,6 +13,7 @@
         <div class="mb-3">
             <label for="unit">Unité</label>
             <select name="unit" class="form-control" required>
+                <option value="boite">boite</option>
                 <option value="kg">Kilogramme</option>
                 <option value="litre">Litre</option>
                 <option value="piece">Pièce</option>
