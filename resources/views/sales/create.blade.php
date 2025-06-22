@@ -33,11 +33,14 @@
         <td>
             <select name="products[0][product_id]" class="form-control product-select" required onchange="updateRow(0)">
                 <option value="">-- Choisir --</option>
-                @foreach($products as $product)
-                    <option value="{{ $product->id }}" data-price="{{ $product->sale_price }}">
-                        {{ $product->name }} ({{ number_format($product->sale_price, 0) }} FCFA)
-                    </option>
-                @endforeach
+               <!-- Dans le <select> produit, on ajoute data-stock -->
+@foreach($products as $product)
+    <option value="{{ $product->id }}" 
+        data-price="{{ $product->sale_price }}" 
+        data-stock="{{ $product->stock_quantity }}">
+        {{ $product->name }} ({{ number_format($product->sale_price, 0) }} FCFA | Stock: {{ $product->stock_quantity }})
+    </option>
+@endforeach
             </select>
         </td>
         <td>
