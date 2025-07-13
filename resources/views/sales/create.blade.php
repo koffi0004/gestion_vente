@@ -3,11 +3,12 @@
 @section('content')
 <div class="container">
     <h1>Nouvelle vente</h1>
+
     @if ($errors->has('stock'))
     <div class="alert alert-danger">
         {{ $errors->first('stock') }}
     </div>
-@endif
+    @endif
 
     <form action="{{ route('sales.store') }}" method="POST">
         @csrf
@@ -15,7 +16,7 @@
         <!-- Choix du client -->
         <div class="mb-3">
             <label for="client_id">Client :</label>
-            <select name="client_id" class="form-control" required>
+            <select name="client_id" class="form-control select2" required>
                 @foreach ($clients as $client)
                     <option value="{{ $client->id }}">{{ $client->name }}</option>
                 @endforeach
@@ -23,46 +24,45 @@
         </div>
 
         <!-- Table des produits -->
-       <table class="table table-bordered" id="products_table">
-    <thead>
-        <tr>
-            <th>Produit</th>
-            <th>Quantité</th>
-            <th>Prix unitaire</th>
-            <th>Sous-total</th>
-            <th></th>
-        </tr>
-    </thead>
-   <tbody id="product_rows">
-    <tr>
-        <td>
-            <select name="products[0][product_id]" class="form-control product-select" required onchange="updateRow(0)">
-                <option value="">-- Choisir --</option>
-               <!-- Dans le <select> produit, on ajoute data-stock -->
-@foreach($products as $product)
-    <option value="{{ $product->id }}" 
-        data-price="{{ $product->sale_price }}" 
-        data-stock="{{ $product->stock_quantity }}">
-        {{ $product->name }} ({{ number_format($product->sale_price, 0) }} FCFA )
-    </option>
-@endforeach
-            </select>
-        </td>
-        <td>
-            <input type="number" name="products[0][quantity]" class="form-control quantity" value="1" min="1" onchange="updateRow(0)">
-        </td>
-        <td>
-            <input type="text" name="products[0][unit_price]" class="form-control unit_price"eadonly>
-        </td>
-        <td>
-            <input type="text" name="products[0][total_price]" class="form-control total_price" readonly>
-        </td>
-        <td>
-            <button type="button" class="btn btn-danger" onclick="removeRow(this)">X</button>
-        </td>
-    </tr>
-</tbody>
-</table>
+        <table class="table table-bordered" id="products_table">
+            <thead>
+                <tr>
+                    <th>Produit</th>
+                    <th>Quantité</th>
+                    <th>Prix unitaire</th>
+                    <th>Sous-total</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="product_rows">
+                <tr>
+                    <td>
+                        <select name="products[0][product_id]" class="form-control product-select select2" required onchange="updateRow(0)">
+                            <option value="">-- Choisir --</option>
+                            @foreach($products as $product)
+                                <option value="{{ $product->id }}" 
+                                        data-price="{{ $product->sale_price }}" 
+                                        data-stock="{{ $product->stock_quantity }}">
+                                    {{ $product->name }} ({{ number_format($product->sale_price, 0) }} FCFA)
+                                </option>
+                            @endforeach
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" name="products[0][quantity]" class="form-control quantity" value="1" min="1" onchange="updateRow(0)">
+                    </td>
+                    <td>
+                        <input type="text" name="products[0][unit_price]" class="form-control unit_price" readonly>
+                    </td>
+                    <td>
+                        <input type="text" name="products[0][total_price]" class="form-control total_price" readonly>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-danger" onclick="removeRow(this)">X</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
 
         <button type="button" class="btn btn-secondary" onclick="addRow()">Ajouter un produit</button>
 
@@ -86,6 +86,7 @@
     </form>
 </div>
 
+<!-- Scripts -->
 <script>
     let rowIndex = 1;
 
@@ -95,11 +96,8 @@
         const price = parseFloat(select.options[select.selectedIndex]?.dataset.price || 0);
         const quantity = parseInt(row.querySelector('.quantity').value) || 0;
 
-        const unitInput = row.querySelector('.unit_price');
-        const totalInput = row.querySelector('.total_price');
-
-        unitInput.value = price.toFixed(2);
-        totalInput.value = (price * quantity).toFixed(2);
+        row.querySelector('.unit_price').value = price.toFixed(2);
+        row.querySelector('.total_price').value = (price * quantity).toFixed(2);
 
         updateTotal();
     }
@@ -109,7 +107,6 @@
         document.querySelectorAll('.total_price').forEach(input => {
             total += parseFloat(input.value) || 0;
         });
-
         document.getElementById('grand_total').innerText = total.toFixed(2);
         document.getElementById('total_amount').value = total.toFixed(2);
     }
@@ -119,7 +116,7 @@
         const lastRow = rows[rows.length - 1];
         const newRow = lastRow.cloneNode(true);
 
-        // Mettre à jour les noms des champs
+        // Réinitialise les champs et incrémente les index
         newRow.querySelectorAll('select, input').forEach(input => {
             input.name = input.name.replace(/\d+/, rowIndex);
             if (input.classList.contains('quantity')) input.value = 1;
@@ -128,6 +125,7 @@
         });
 
         document.getElementById('product_rows').appendChild(newRow);
+        $('.select2').select2(); // re-active Select2 pour le nouveau select
         rowIndex++;
     }
 
