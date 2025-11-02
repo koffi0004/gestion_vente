@@ -5,6 +5,11 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Auth\CustomLoginController;
+
+Route::get('/login', [CustomLoginController::class, 'showLoginForm'])->name('custom.login.form');
+Route::post('/login', [CustomLoginController::class, 'login'])->name('custom.login');
+Route::post('/logout', [CustomLoginController::class, 'logout'])->name('custom.logout');
 
 // ✅ Page d'accueil (on remplace welcome)
 Route::get('/', function () {
@@ -38,4 +43,4 @@ Route::get('/export/stock/pdf', [App\Http\Controllers\ProductController::class, 
 });
 
 // ✅ Auth Breeze
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
